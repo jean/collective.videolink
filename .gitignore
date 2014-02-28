@@ -1,0 +1,5 @@
+Paste*
+.hg*
+*.pyc
+*egg-info
+dist
