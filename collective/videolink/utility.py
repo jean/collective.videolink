@@ -1,6 +1,8 @@
 from zope.annotation.interfaces import IAnnotations
 import urllib2
 from urllib2 import HTTPError
+import logging
+logger = logging.getLogger('collective.videolink')
 
 def add_thumbnail(context, event):
     """
@@ -26,7 +28,11 @@ def add_thumbnail(context, event):
         videoid = url.split('/')[-1] #vimeo videos are queried by their ids
         req = urllib2.Request("http://vimeo.com/api/v2/video/%s.json" % videoid ,None,{'user-agent':'plone.vimeo/embed'})
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        try:
+            f = opener.open(req)
+        except HTTPError, e:
+            logger.info('Error contacting vimeo: %s' % e)
+            return
         metadata = eval(f.read())
         #vimeo wraps their json in a list (square brackets)
         thumbnail_url = metadata[0]['thumbnail_medium'].replace('\\','')
@@ -39,7 +45,11 @@ def add_thumbnail(context, event):
         annotations['collective.videolink.data'] = {}
         req = urllib2.Request("http://lab.viddler.com/services/oembed/?url=%s/&type=simple&format=json" % url, None,{'user-agent':'plone.viddler/embed'})
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        try:
+            f = opener.open(req)
+        except HTTPError, e:
+            logger.info('Error contacting viddler: %s' % e)
+            return
         metadata = eval(f.read())
         print metadata
         try:
@@ -55,7 +65,11 @@ def add_thumbnail(context, event):
         annotations['collective.videolink.data'] = {}
         req = urllib2.Request("http://www.youtube.com/oembed?url=%s&format=json" % url, None,{'user-agent':'plone.youtube/embed'})
         opener = urllib2.build_opener()
-        f = opener.open(req)
+        try:
+            f = opener.open(req)
+        except HTTPError, e:
+            logger.info('Error contacting youtube: %s' % e)
+            return
         metadata = eval(f.read())
         thumbnail_url = metadata['thumbnail_url'].replace('\\','')
         data['thumbnail'] = thumbnail_url
@@ -67,7 +81,8 @@ def add_thumbnail(context, event):
         opener = urllib2.build_opener()
         try:
             f = opener.open(req)
-        except HTTPError:
+        except HTTPError, e:
+            logger.info('Error contacting oohembed: %s' % e)
             return
         metadata = eval(f.read())
         thumbnail_url = metadata['thumbnail_url'].replace('\\','')
