@@ -26,8 +26,8 @@ def add_thumbnail(context, event):
         videoid = url.split('/')[-1] #vimeo videos are queried by their ids
         req = urllib2.Request("http://vimeo.com/api/v2/video/%s.json" % videoid ,None,{'user-agent':'plone.vimeo/embed'})
         opener = urllib2.build_opener()
-        file = opener.open(req)
-        metadata = eval(file.read())
+        f = opener.open(req)
+        metadata = eval(f.read())
         #vimeo wraps their json in a list (square brackets)
         thumbnail_url = metadata[0]['thumbnail_medium'].replace('\\','')
         annotations['collective.videolink.data']['thumbnail'] = data['thumbnail'] = thumbnail_url
@@ -39,8 +39,8 @@ def add_thumbnail(context, event):
         annotations['collective.videolink.data'] = {}
         req = urllib2.Request("http://lab.viddler.com/services/oembed/?url=%s/&type=simple&format=json" % url, None,{'user-agent':'plone.viddler/embed'})
         opener = urllib2.build_opener()
-        file = opener.open(req)
-        metadata = eval(file.read())
+        f = opener.open(req)
+        metadata = eval(f.read())
         print metadata
         try:
             thumbnail_url = metadata['thumbnail_url'].replace('\\','')
@@ -55,8 +55,8 @@ def add_thumbnail(context, event):
         annotations['collective.videolink.data'] = {}
         req = urllib2.Request("http://www.youtube.com/oembed?url=%s&format=json" % url, None,{'user-agent':'plone.youtube/embed'})
         opener = urllib2.build_opener()
-        file = opener.open(req)
-        metadata = eval(file.read())
+        f = opener.open(req)
+        metadata = eval(f.read())
         thumbnail_url = metadata['thumbnail_url'].replace('\\','')
         data['thumbnail'] = thumbnail_url
         annotations['collective.videolink.data']['thumbnail'] = data['thumbnail'] = thumbnail_url
@@ -66,10 +66,10 @@ def add_thumbnail(context, event):
         req = urllib2.Request("http://oohembed.com/oohembed/?url=%s" % url, None, {'user-agent':'plone.collective.video/embed'})
         opener = urllib2.build_opener()
         try:
-            file = opener.open(req)
+            f = opener.open(req)
         except HTTPError:
             return
-        metadata = eval(file.read())
+        metadata = eval(f.read())
         thumbnail_url = metadata['thumbnail_url'].replace('\\','')
         data['thumbnail'] = thumbnail_url
         annotations['collective.videolink.data']['thumbnail'] = data['thumbnail'] = thumbnail_url
